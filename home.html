@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MVVM</title>
+</head>
+<body>
+
+<div id="mvvm-app">
+
+    <p>{{getHelloWord}}</p>
+    <button onclick=bclick()>change model</button>
+</div>
+
+<script src="./vm.js"></script>
+<script src="./yilm/index.js"></script>
+<script src="./watcher/watcher.js"></script>
+<script src="./compile/compile.js"></script>
+<script>
+    var vm = new yile({
+        el: '#mvvm-app',
+        data: {
+            getHelloWord: 'hello'
+        },
+    });
+    function bclick() {
+        vm._data.getHelloWord = 'world'
+    }
+</script>
+
+</body>
+</html>
