@@ -49,7 +49,6 @@ Dep.prototype = {
         this.subs.push(sub);
     },
     notify: function() {
-        console.log(this.subs.length)
         this.subs.forEach(function(sub) {
             sub.update();
         });

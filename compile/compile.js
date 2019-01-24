@@ -27,13 +27,46 @@ Compile.prototype = {
             var text = node.textContent;
             //寻找形如{{name}}
             var reg = /\{\{(.*)\}\}/;
-            if (node.nodeType == 1 && reg.test(text)){
-                let exp = RegExp.$1;
-                let data = getVmodelDate(me,exp);
-                node.textContent = typeof data == 'undefined' ? '' : data;
-                new Watcher(me.$vm,exp,function (value) {
-                    node.textContent = typeof value == 'undefined' ? '' : value;
+            if (node.nodeType == 1) {
+                var nodeAttrs = node.attributes;
+                [].slice.call(nodeAttrs).forEach(function(attribute) {
+                    let attrName = attribute.name;
+                    if (attrName.indexOf('v-')==0){
+                        let cmd = attrName.substring(2);
+                        var exp = attribute.value;
+                        if(cmd.indexOf('on') == 0){
+
+                        }
+                        else {
+                            let data = getVmodelDate(me,exp);
+                            node.value = typeof data == 'undefined' ? '' : data;
+                            new Watcher(me.$vm,exp,function (value) {
+                                node.value = typeof value == 'undefined' ? '' : value;
+                            });
+
+                            node.addEventListener('keyup',function(e) {
+                                var newValue = e.target.value;
+                                if (data === newValue) {
+                                    return;
+                                }
+
+                                setVmodelDate(me, exp, newValue);
+                                data = newValue;
+                            })
+                        }
+                    }
                 })
+
+            } else if (node.nodeType == 3 && reg.test(text)){
+                    let exp = RegExp.$1;
+                    let data = getVmodelDate(me,exp);
+                    node.textContent = typeof data == 'undefined' ? '' : data;
+                    new Watcher(me.$vm,exp,function (value) {
+                        node.textContent = typeof value == 'undefined' ? '' : value;
+                    })
+            }
+            if(node.childNodes  && node.childNodes.length){
+                me.compileElement(node)
             }
         });
     },
@@ -44,8 +77,15 @@ Compile.prototype = {
 function getVmodelDate (vm, exp) {
     let mvm = vm;
     exp = exp.split('.')
-    exp.forEach(function(k) {
+    exp.forEach(function (k) {
         mvm = vm.$vm._data[k];
     });
     return mvm
+}
+function setVmodelDate (vm, exp, newValue) {
+    let mvm = vm;
+    exp = exp.split('.')
+    exp.forEach(function(k) {
+        vm.$vm._data[k] = newValue;
+    });
 }
