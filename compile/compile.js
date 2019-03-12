@@ -27,6 +27,7 @@ Compile.prototype = {
             var text = node.textContent;
             //寻找形如{{name}}
             var reg = /\{\{(.*)\}\}/;
+            // 处理元素节点，例如<p>
             if (node.nodeType == 1) {
                 var nodeAttrs = node.attributes;
                 [].slice.call(nodeAttrs).forEach(function(attribute) {
@@ -37,13 +38,20 @@ Compile.prototype = {
                         if(cmd.indexOf('on') == 0){
 
                         }
-                        else {
+                        else if(cmd.indexOf('for') == 0){
+                            let data = getVmodelDate(me,exp)
+                            //TODO 支持对象数组:{{array.index}}
+
+
+                        }
+                        else if(cmd.indexOf('model') == 0){
                             let data = getVmodelDate(me,exp);
                             node.value = typeof data == 'undefined' ? '' : data;
                             new Watcher(me.$vm,exp,function (value) {
                                 node.value = typeof value == 'undefined' ? '' : value;
                             });
 
+                            //TODO 暂时使用keyup，keydown在数据为空时需要处理，所以双向绑定时会存在延时
                             node.addEventListener('keyup',function(e) {
                                 var newValue = e.target.value;
                                 if (data === newValue) {
@@ -57,7 +65,9 @@ Compile.prototype = {
                     }
                 })
 
-            } else if (node.nodeType == 3 && reg.test(text)){
+            }
+            // 处理文本节点，包含空白点
+            else if (node.nodeType == 3 && reg.test(text)){
                     let exp = RegExp.$1;
                     let data = getVmodelDate(me,exp);
                     node.textContent = typeof data == 'undefined' ? '' : data;

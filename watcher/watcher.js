@@ -39,7 +39,6 @@ Watcher.prototype = {
         if (/[^\w.$]/.test(exp)) return;
 
         var exps = exp.split('.');
-        console.log(exps);
         return function(obj) {
             for (var i = 0, len = exps.length; i < len; i++) {
                 if (!obj) return;
